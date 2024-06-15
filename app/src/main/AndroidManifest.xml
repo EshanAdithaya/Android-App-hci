@@ -13,6 +13,10 @@
         android:theme="@style/Theme.RecipeApp"
         tools:targetApi="31">
         <activity
+            android:name=".dummey"
+            android:exported="false"
+            android:label="@string/title_activity_dummey" />
+        <activity
             android:name=".home"
             android:exported="false"
             android:label="@string/title_activity_home" />
