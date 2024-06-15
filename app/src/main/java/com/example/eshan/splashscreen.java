@@ -19,7 +19,7 @@ public class splashscreen extends AppCompatActivity {
 
         if (!firstTime) {
             // If not the first time, go directly to MainActivity
-            Intent intent = new Intent(splashscreen.this, MainActivity.class);
+            Intent intent = new Intent(splashscreen.this, signup.class);
             startActivity(intent);
             finish();
             return;

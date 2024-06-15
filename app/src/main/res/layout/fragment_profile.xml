@@ -109,6 +109,6 @@ tools:context=".ProfileFragment">
         android:layout_marginBottom="36dp"
         android:text="Signout"
         android:backgroundTint="#b30600"
-        android:backgroundTintMode="<mode>"
+
        />
 </RelativeLayout>
