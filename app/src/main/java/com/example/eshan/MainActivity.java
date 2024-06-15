@@ -6,10 +6,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import android.os.Bundle;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.MenuItem;
-//import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,11 +22,8 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment selectedFragment = null;
-                selectedFragment =new HomeFragment();
+                Fragment selectedFragment = new HomeFragment();
 
-                System.out.println(item.getItemId());
-//                Fragment selectedFragment = null;
                 if (item.getItemId() == R.id.navigation_home) {
                     selectedFragment = new HomeFragment();
                 } else if (item.getItemId() == R.id.navigation_dashboard) {
@@ -39,27 +35,27 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     throw new IllegalArgumentException("Unexpected value: " + item.getItemId());
                 }
-//                switch (item.getItemId()) {
-//                    case 1000005 :
-//                        selectedFragment = new HomeFragment();
-//                        break;
-//                    case 1000001:
-//                        selectedFragment = new DashboardFragment();
-//                        break;
-//                    case 1000002:
-//                        selectedFragment = new NotificationsFragment();
-//                        break;
-//                    case 1000004:
-//                        selectedFragment = new ProfileFragment();
-//                        break;
-//                }
+
                 getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, selectedFragment).commit();
                 return true;
             }
-
         });
 
         // Set default selection
         bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setMessage("Do you want to exit the app?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        MainActivity.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }
