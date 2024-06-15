@@ -7,11 +7,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.firebase.FirebaseApp;
+
 public class splashscreen extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
 
         // Check if the splash screen has been shown before
         SharedPreferences preferences = getSharedPreferences("prefs", MODE_PRIVATE);
