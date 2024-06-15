@@ -48,6 +48,26 @@ tools:context=".ProfileFragment">
         android:text="TextView" />
 
     <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="190dp"
+        android:layout_marginBottom="438dp"
+        android:text="Name  on here" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="221dp"
+        android:layout_marginBottom="384dp"
+        android:text="Email here" />
+
+    <TextView
         android:id="@+id/textView3"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
@@ -73,7 +93,7 @@ tools:context=".ProfileFragment">
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="46dp"
-        android:layout_marginBottom="569dp"
+        android:layout_marginEnd="35dp"
+        android:layout_marginBottom="572dp"
         android:text="4" />
 </RelativeLayout>
