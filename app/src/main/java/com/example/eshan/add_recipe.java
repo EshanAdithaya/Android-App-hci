@@ -7,6 +7,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import com.example.eshan.R;
+
+
 
 import android.Manifest;
 import android.content.Intent;
@@ -23,6 +28,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -56,14 +63,28 @@ public class add_recipe extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
+    private Spinner categorySpinner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recipe);
+// ***********************************************************************************************************************//
+         //Initialize Spinner
+        categorySpinner = findViewById(R.id.spinner);
 
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.spinner_items, android.R.layout.simple_spinner_item);
+
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Apply the adapter to the spinner
+        categorySpinner.setAdapter(adapter);
         progressBar = findViewById(R.id.progressBar);
-
+//****************************************************************************************************************************//
 
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -78,30 +99,7 @@ public class add_recipe extends AppCompatActivity {
 
         // Initialize the Spinner
         categorySpinner = findViewById(R.id.spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.spinner_items, android.R.layout.simple_spinner_item);
 
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply the adapter to the spinner
-        categorySpinner.setAdapter(adapter);
-
-        // Add the Spinner listener
-        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                // Do something with the selected item
-                String selectedItem = parentView.getItemAtPosition(position).toString();
-                Toast.makeText(add_recipe.this, "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // Do something when nothing is selected
-            }
-        });
         addPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +110,8 @@ public class add_recipe extends AppCompatActivity {
                 }
             }
         });
+
+
 
         previousImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,8 +231,24 @@ public class add_recipe extends AppCompatActivity {
         }
     }
 
+    private String getCurrentUserId() {
+        // Implement this method to get the current user ID from your authentication system
+        // Example using Firebase Authentication:
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            return user.getUid();
+        } else {
+            // Handle case where user is not authenticated
+            return null;  // Or handle appropriately based on your app's requirements
+        }
+    }
+
+
     // from here to ****************************************************
     private void addRecipeToFirebase() {
+        // Retrieve user ID (Assuming you have a way to authenticate users)
+        String userId = getCurrentUserId(); // Implement this method to get current user ID
+
         // Collect recipe details from the user
         String recipeName = ((EditText) findViewById(R.id.recipyNameText)).getText().toString().trim();
         String ingredients = ((EditText) findViewById(R.id.ingredientText)).getText().toString().trim();
@@ -258,10 +274,12 @@ public class add_recipe extends AppCompatActivity {
         recipeData.put("ingredients", ingredients);
         recipeData.put("steps", recipeSteps);
         recipeData.put("category", selectedCategory);  // Add the selected category
+        recipeData.put("userId", userId);  // Add user ID to the recipe data
 
         // Upload images and get URLs
         uploadImagesAndSaveRecipe(recipeData);
     }
+
 
 
     private void uploadImagesAndSaveRecipe(Map<String, Object> recipeData) {
@@ -320,6 +338,23 @@ public class add_recipe extends AppCompatActivity {
             @Override
             public void onSuccess(Long newId) {
                 recipeData.put("id", newId);
+                Log.e(TAG, getCurrentUserId()+"---------"+String.valueOf(newId));
+                // Save recipe to Firestore with userId included
+
+//                db.collection("users")
+//                        .add(dummyData)
+//                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                            @Override
+//                            public void onSuccess(DocumentReference documentReference) {
+//                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+//                            }
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Log.w(TAG, "Error adding document", e);
+//                            }
+//                        });
                 db.collection("recipes").document(String.valueOf(newId)).set(recipeData)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -346,5 +381,6 @@ public class add_recipe extends AppCompatActivity {
             }
         });
     }
+
 
 }

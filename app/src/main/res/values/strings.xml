@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">eshan</string>
+    <string-array name="spinner_items">
+        <item>Main Course</item>
+        <item>Beverages</item>
+        <item>Desserts</item>
+    </string-array>
 </resources>
+
+
