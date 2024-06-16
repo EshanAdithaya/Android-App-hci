@@ -1,6 +1,7 @@
 package com.example.eshan;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,8 @@ import com.google.firebase.FirebaseApp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +23,17 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
 
+
+        Button button5 = findViewById(R.id.button5);
+        // Set an OnClickListener on the signup button
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to start the signup activity
+                Intent intent = new Intent(MainActivity.this, add_recipe.class);
+                startActivity(intent);
+            }
+        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -45,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         // Set default selection
         bottomNavigationView.setSelectedItemId(R.id.navigation_home);
     }
@@ -62,4 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("No", null)
                 .show();
     }
+
+
+
 }
