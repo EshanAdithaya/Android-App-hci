@@ -13,38 +13,95 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class add_recipe extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PICK_IMAGES = 1;
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 2;
+    private static final String TAG = "add_recipe";
+    private static final String COUNTER_DOC = "counter";
+    private static final String COUNTER_FIELD = "latestRecipeId";
 
     private ArrayList<Uri> imageUris = new ArrayList<>();
     private int currentImageIndex = 0;
 
     private ImageView foodImageView;
-    private Button addPhotoButton, previousImageButton, nextImageButton, deletePhotoButton;
+    private Button addPhotoButton, previousImageButton, nextImageButton, deletePhotoButton, addRecipeButton;
     private RecyclerView imageNameViewer;
     private ImageNameAdapter imageNameAdapter;
+
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+
+    private ProgressBar progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recipe);
 
+        progressBar = findViewById(R.id.progressBar);
+
+
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+
         foodImageView = findViewById(R.id.food_image);
         addPhotoButton = findViewById(R.id.add_photo_button);
         previousImageButton = findViewById(R.id.previousImagebutton);
         nextImageButton = findViewById(R.id.nextImagebutton);
         deletePhotoButton = findViewById(R.id.delete_photo_button2);
+        addRecipeButton = findViewById(R.id.addRecipyTofirebaseButton);
         imageNameViewer = findViewById(R.id.imagenameviewer);
 
+        // Initialize the Spinner
+        categorySpinner = findViewById(R.id.spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.spinner_items, android.R.layout.simple_spinner_item);
+
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Apply the adapter to the spinner
+        categorySpinner.setAdapter(adapter);
+
+        // Add the Spinner listener
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Do something with the selected item
+                String selectedItem = parentView.getItemAtPosition(position).toString();
+                Toast.makeText(add_recipe.this, "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do something when nothing is selected
+            }
+        });
         addPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,6 +131,13 @@ public class add_recipe extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 deleteCurrentImage();
+            }
+        });
+
+        addRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addRecipeToFirebase();
             }
         });
 
@@ -166,4 +230,121 @@ public class add_recipe extends AppCompatActivity {
             }
         }
     }
+
+    // from here to ****************************************************
+    private void addRecipeToFirebase() {
+        // Collect recipe details from the user
+        String recipeName = ((EditText) findViewById(R.id.recipyNameText)).getText().toString().trim();
+        String ingredients = ((EditText) findViewById(R.id.ingredientText)).getText().toString().trim();
+        String recipeSteps = ((EditText) findViewById(R.id.recipeText)).getText().toString().trim();
+        String selectedCategory = categorySpinner.getSelectedItem().toString();
+
+        if (recipeName.isEmpty() || ingredients.isEmpty() || recipeSteps.isEmpty()) {
+            Toast.makeText(this, "Please fill in all the fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (imageUris.isEmpty()) {
+            Toast.makeText(this, "Please add at least one photo", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show the ProgressBar
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Create a map for the recipe data
+        Map<String, Object> recipeData = new HashMap<>();
+        recipeData.put("name", recipeName);
+        recipeData.put("ingredients", ingredients);
+        recipeData.put("steps", recipeSteps);
+        recipeData.put("category", selectedCategory);  // Add the selected category
+
+        // Upload images and get URLs
+        uploadImagesAndSaveRecipe(recipeData);
+    }
+
+
+    private void uploadImagesAndSaveRecipe(Map<String, Object> recipeData) {
+        ArrayList<String> imageUrls = new ArrayList<>();
+
+        for (Uri imageUri : imageUris) {
+            StorageReference imageRef = storage.getReference().child("images/" + imageUri.getLastPathSegment());
+
+            imageRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri downloadUri) {
+                            imageUrls.add(downloadUri.toString());
+
+                            // Check if all images have been uploaded
+                            if (imageUrls.size() == imageUris.size()) {
+                                recipeData.put("imageUrls", imageUrls);
+                                saveRecipeToFirestore(recipeData);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "Failed to get download URL", e);
+                            Toast.makeText(add_recipe.this, "Failed to upload images", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Failed to upload image", e);
+                    Toast.makeText(add_recipe.this, "Failed to upload images", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
+                }
+            });
+        }
+    }
+
+    private void saveRecipeToFirestore(Map<String, Object> recipeData) {
+        // Get a new ID for the recipe
+        db.runTransaction(new Transaction.Function<Long>() {
+            @Nullable
+            @Override
+            public Long apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentReference counterRef = db.collection("metadata").document(COUNTER_DOC);
+                Long currentId = transaction.get(counterRef).getLong(COUNTER_FIELD);
+                long newId = (currentId != null ? currentId : 0) + 1;
+                transaction.update(counterRef, COUNTER_FIELD, newId);
+                return newId;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Long>() {
+            @Override
+            public void onSuccess(Long newId) {
+                recipeData.put("id", newId);
+                db.collection("recipes").document(String.valueOf(newId)).set(recipeData)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(add_recipe.this, "Recipe added successfully", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE); // Hide ProgressBar on success
+                                finish();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Failed to add recipe", e);
+                                Toast.makeText(add_recipe.this, "Failed to add recipe", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
+                            }
+                        });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Failed to get new recipe ID", e);
+                Toast.makeText(add_recipe.this, "Failed to add recipe", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
+            }
+        });
+    }
+
 }
