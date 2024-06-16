@@ -45,11 +45,19 @@ public class recipeShowcase extends AppCompatActivity {
 
         recipy_name = findViewById(R.id.Recipename);
 
+
+
         foodImageView = findViewById(R.id.imageViewRecipe);
         Intent intent = getIntent();
-        recipy_name.se
+        recipy_name.setText(intent.getStringExtra("recipyName"));
+        recipy_ingredients.setText(intent.getStringExtra("recipyIngredients"));
+        recipy_instructions.setText(intent.getStringExtra("recipySteps"));
+      //  recipy_instructions.setText(intent.getStringExtra("imageUrl"));
      //   fetchRecipyData() ;
-
+//        if (isAdded() && getContext() != null) {
+//            Glide.with(getContext()).load(imageUrl).into(imageView);
+//        }
+        Glide.with(this).load(intent.getStringExtra("imageUrl")).into(foodImageView);
     }
 
     private String getCurrentUserId() {

@@ -52,9 +52,12 @@ public class DashboardFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-             //   String selectedItem = (String) parent.getItemAtPosition(position);
+                recipes selectedItem = (recipes) parent.getItemAtPosition(position);
                 Intent intent = new Intent(getContext(), recipeShowcase.class);
-                intent.putExtra("selectedItem", "selectedItem");
+                intent.putExtra("recipyName", selectedItem.getName());
+                intent.putExtra("recipyIngredients", selectedItem.getIngredients());
+                intent.putExtra("recipySteps", selectedItem.getSteps());
+                intent.putExtra("imageUrl", selectedItem.getImageUrls().get(0));
                 startActivity(intent);
             }
         });
