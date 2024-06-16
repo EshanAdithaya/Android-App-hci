@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">1060025557548</string>
+    <string name="google_api_key" translatable="false">AIzaSyBiBQb5UVsxEFfEEpGzrSwMoSet3oqOlZw</string>
+    <string name="google_app_id" translatable="false">1:1060025557548:android:1631f661953085488e6789</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBiBQb5UVsxEFfEEpGzrSwMoSet3oqOlZw</string>
+    <string name="google_storage_bucket" translatable="false">recipe-app-e6635.appspot.com</string>
+    <string name="project_id" translatable="false">recipe-app-e6635</string>
+</resources>
