@@ -323,63 +323,65 @@ public class add_recipe extends AppCompatActivity {
     }
 
     private void saveRecipeToFirestore(Map<String, Object> recipeData) {
-        // Get a new ID for the recipe
-        db.runTransaction(new Transaction.Function<Long>() {
-            @Nullable
-            @Override
-            public Long apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentReference counterRef = db.collection("metadata").document(COUNTER_DOC);
-                Long currentId = transaction.get(counterRef).getLong(COUNTER_FIELD);
-                long newId = (currentId != null ? currentId : 0) + 1;
-                transaction.update(counterRef, COUNTER_FIELD, newId);
-                return newId;
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Long>() {
-            @Override
-            public void onSuccess(Long newId) {
-                recipeData.put("id", newId);
-                Log.e(TAG, getCurrentUserId()+"---------"+String.valueOf(newId));
-                // Save recipe to Firestore with userId included
+      //   Get a new ID for the recipe
+        db.collection("recipes").document(getCurrentUserId()).set(recipeData)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Toast.makeText(add_recipe.this, "Recipe added successfully", Toast.LENGTH_SHORT).show();
+                                        progressBar.setVisibility(View.GONE); // Hide ProgressBar on success
+                                        finish();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.e(TAG, "Failed to add recipe", e);
+                                        Toast.makeText(add_recipe.this, "Failed to add recipe", Toast.LENGTH_SHORT).show();
+                                        progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
+                                    }
+                                });
 
-//                db.collection("users")
-//                        .add(dummyData)
-//                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                            @Override
-//                            public void onSuccess(DocumentReference documentReference) {
-//                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-//                            }
-//                        })
-//                        .addOnFailureListener(new OnFailureListener() {
-//                            @Override
-//                            public void onFailure(@NonNull Exception e) {
-//                                Log.w(TAG, "Error adding document", e);
-//                            }
-//                        });
-                db.collection("recipes").document(String.valueOf(newId)).set(recipeData)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Toast.makeText(add_recipe.this, "Recipe added successfully", Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE); // Hide ProgressBar on success
-                                finish();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Failed to add recipe", e);
-                                Toast.makeText(add_recipe.this, "Failed to add recipe", Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
-                            }
-                        });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(TAG, "Failed to get new recipe ID", e);
-                Toast.makeText(add_recipe.this, "Failed to add recipe", Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
-            }
-        });
+//        db.runTransaction(new Transaction.Function<Long>() {
+//            @Nullable
+//            @Override
+//            public Long apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+//                DocumentReference counterRef = db.collection("recipes").document(COUNTER_DOC);
+//                Long currentId = transaction.get(counterRef).getLong(COUNTER_FIELD);
+//                long newId = (currentId != null ? currentId : 0) + 1;
+//                transaction.update(counterRef, COUNTER_FIELD, newId);
+//                return newId;
+//            }
+//        }).addOnSuccessListener(new OnSuccessListener<Long>() {
+//            @Override
+//            public void onSuccess(Long newId) {
+//                recipeData.put("id", newId);
+//                Log.e(TAG, getCurrentUserId()+"---------"+String.valueOf(newId));
+//                // Save recipe to Firestore with userId included
+//
+////                db.collection("users")
+////                        .add(dummyData)
+////                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+////                            @Override
+////                            public void onSuccess(DocumentReference documentReference) {
+////                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+////                            }
+////                        })
+////                        .addOnFailureListener(new OnFailureListener() {
+////                            @Override
+////                            public void onFailure(@NonNull Exception e) {
+////                                Log.w(TAG, "Error adding document", e);
+////                            }
+////                        });
+//
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Log.e(TAG, "Failed to get new recipe ID", e);
+//                Toast.makeText(add_recipe.this, "Failed to add recipe", Toast.LENGTH_SHORT).show();
+//                progressBar.setVisibility(View.GONE); // Hide ProgressBar on failure
+//            }
+//        });
     }
 
 
