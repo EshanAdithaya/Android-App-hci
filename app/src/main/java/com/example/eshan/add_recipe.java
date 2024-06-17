@@ -65,6 +65,8 @@ public class add_recipe extends AppCompatActivity {
 
     private Spinner categorySpinner;
 
+    private  ArrayList<String> imageUrls;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -283,7 +285,7 @@ public class add_recipe extends AppCompatActivity {
 
 
     private void uploadImagesAndSaveRecipe(Map<String, Object> recipeData) {
-        ArrayList<String> imageUrls = new ArrayList<>();
+         imageUrls = new ArrayList<>();
 
         for (Uri imageUri : imageUris) {
             StorageReference imageRef = storage.getReference().child("images/" + imageUri.getLastPathSegment());
@@ -372,8 +374,37 @@ public class add_recipe extends AppCompatActivity {
                             public void onFailure(@NonNull Exception e) {
                                 Log.w(TAG, "Error adding document", e);
                             }
+
                         });
-//
+                            //
+
+
+
+
+
+
+        Map<String, Object> notificationdata = new HashMap<>();
+        notificationdata.put("imageResId", imageUrls.get(0));
+        notificationdata.put("message", recipeData.get("name"));
+        notificationdata.put("title", "New Recipy Added " );
+
+
+        db.collection("notification")
+                .add(notificationdata)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                        progressBar.setVisibility(View.GONE); // Hide ProgressBar on success
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+
+                });
 //            }
 //        }).addOnFailureListener(new OnFailureListener() {
 //            @Override
