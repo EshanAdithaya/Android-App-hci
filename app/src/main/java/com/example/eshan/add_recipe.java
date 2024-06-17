@@ -210,7 +210,7 @@ public class add_recipe extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        imageNameAdapter = new ImageNameAdapter(this, imageUris);
+        imageNameAdapter = new ImageNameAdapter(this, imageUris, progressBar);
         imageNameViewer.setAdapter(imageNameAdapter);
         imageNameViewer.setLayoutManager(new LinearLayoutManager(this));
     }

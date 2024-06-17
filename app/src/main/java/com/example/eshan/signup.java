@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,6 +27,7 @@ public class signup extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText emailEditText, passwordEditText, nameEditText;
     private Button signupButton, loginButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class signup extends AppCompatActivity {
         nameEditText = findViewById(R.id.UserNameText);
         signupButton = findViewById(R.id.signupfinal);
         loginButton = findViewById(R.id.login);
+        progressBar = findViewById(R.id.progressBar); // Initialize ProgressBar
 
         // Set an OnClickListener on the signup button
         signupButton.setOnClickListener(new View.OnClickListener() {
@@ -57,11 +60,17 @@ public class signup extends AppCompatActivity {
                     return;
                 }
 
+                // Show the ProgressBar
+                progressBar.setVisibility(View.VISIBLE);
+
                 // Create a new account
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(signup.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                // Hide the ProgressBar
+                                progressBar.setVisibility(View.GONE);
+
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");

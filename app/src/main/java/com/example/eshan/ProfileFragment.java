@@ -28,6 +28,19 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        // Find button by ID from the inflated view
+        Button button5 = view.findViewById(R.id.button5);
+
+        // Set an OnClickListener on the button5
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to start the add_recipe activity
+                Intent intent = new Intent(getActivity(), add_recipe.class);
+                startActivity(intent);
+            }
+        });
+
         // Find views by ID
         userNameText = view.findViewById(R.id.userNametext);
         userEmailText = view.findViewById(R.id.userEmlailText);

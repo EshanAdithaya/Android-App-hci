@@ -24,16 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        Button button5 = findViewById(R.id.button5);
-        // Set an OnClickListener on the signup button
-        button5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create an Intent to start the signup activity
-                Intent intent = new Intent(MainActivity.this, add_recipe.class);
-                startActivity(intent);
-            }
-        });
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

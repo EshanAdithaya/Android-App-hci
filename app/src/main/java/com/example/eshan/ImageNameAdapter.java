@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,10 +17,12 @@ public class ImageNameAdapter extends RecyclerView.Adapter<ImageNameAdapter.Imag
 
     private Context context;
     private ArrayList<Uri> imageUris;
+    private ProgressBar progressBar;
 
-    public ImageNameAdapter(Context context, ArrayList<Uri> imageUris) {
+    public ImageNameAdapter(Context context, ArrayList<Uri> imageUris, ProgressBar progressBar) {
         this.context = context;
         this.imageUris = imageUris;
+        this.progressBar = progressBar;
     }
 
     @NonNull
@@ -31,14 +34,30 @@ public class ImageNameAdapter extends RecyclerView.Adapter<ImageNameAdapter.Imag
 
     @Override
     public void onBindViewHolder(@NonNull ImageNameViewHolder holder, int position) {
+        showProgressBar();
+
         Uri imageUri = imageUris.get(position);
         String imageName = imageUri.getLastPathSegment();
         holder.imageNameTextView.setText(imageName);
+
+        hideProgressBar();
     }
 
     @Override
     public int getItemCount() {
         return imageUris.size();
+    }
+
+    private void showProgressBar() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideProgressBar() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     public static class ImageNameViewHolder extends RecyclerView.ViewHolder {

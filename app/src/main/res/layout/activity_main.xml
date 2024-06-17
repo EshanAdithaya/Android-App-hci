@@ -12,11 +12,14 @@
         android:layout_height="match_parent"
         android:layout_above="@id/bottom_navigation">
 
-        <Button
-            android:id="@+id/button5"
+
+
+        <ProgressBar
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add recipes" />
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
 
     </FrameLayout>
 
