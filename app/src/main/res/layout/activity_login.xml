@@ -32,7 +32,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.419"
-        android:background="@drawable/backgroundtext"/>
+        />
 
     <EditText
         android:id="@+id/loginPassword"
@@ -47,7 +47,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.581"
-        android:background="@drawable/backgroundtext"/>
+        />
 
     <Button
         android:id="@+id/loginfinal"
